@@ -1,0 +1,22 @@
+[package]
+name = "custom_shader"
+version = "0.1.0"
+authors = ["Bingus <shankern@protonmail.com>"]
+edition = "2021"
+
+[dependencies]
+iced = { version = "0.13", features = ["debug","canvas", "image", "advanced"] }
+iced_wgpu =  "0.13"
+image = "0.25"
+bytemuck = { version = "1.23" }
+glam = { version = "0.30", features = ["bytemuck"] }
+rand = "0.8.5"
+fj-core = "0.49"
+fj-export = "0.49"
+fj-interop = "0.49"
+fj-math = "0.49"
+# fj-viewer = "0.49"
+thiserror = "1"
+tobj = "4.0"
+tracing = "0.1"
+nalgebra = "0.34"
