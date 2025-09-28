@@ -2,24 +2,24 @@
 
 mod device;
 mod draw_config;
-mod drawables;
-mod geometries;
+pub mod drawables;
+pub mod geometries;
 mod model;
-mod navigation_cube;
-mod pipelines;
-mod renderer;
+pub mod navigation_cube;
+pub mod pipelines;
+// mod renderer;
 mod shaders;
 mod texture;
-mod transform;
-mod uniforms;
-mod vertices;
+pub mod transform;
+pub mod uniforms;
+pub mod vertices;
 
 use iced_wgpu::wgpu;
 
 pub use self::{
     device::DeviceError,
     draw_config::DrawConfig,
-    renderer::{Renderer, RendererInitError},
+    // renderer::{Renderer, RendererInitError},
 };
 
 pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;

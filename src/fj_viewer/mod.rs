@@ -8,7 +8,7 @@ use iced_wgpu::wgpu::rwh::{HasDisplayHandle,HasWindowHandle};
 pub mod graphics;
 mod input;
 mod assets;
-pub mod viewer;
+// pub mod viewer;
 
 /// Needs to be implemented by types that can serve as a screen to render to
 pub trait Screen {
