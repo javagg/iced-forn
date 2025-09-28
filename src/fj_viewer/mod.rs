@@ -5,7 +5,7 @@ use fj_interop::{Mesh, Model};
 use fj_math::{Aabb, Point, Scalar, Transform, Vector};
 use iced_wgpu::wgpu::rwh::{HasDisplayHandle,HasWindowHandle};
 
-mod graphics;
+pub mod graphics;
 mod input;
 mod assets;
 pub mod viewer;
@@ -278,5 +278,5 @@ impl Default for Camera {
 ///
 /// This will be the point on the model that the cursor is currently pointing at if such a point exists,
 /// falling back to the center point of the model's bounding volume otherwise.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct FocusPoint(pub Point<3>);

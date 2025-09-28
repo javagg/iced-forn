@@ -4,6 +4,11 @@ use iced::widget::shader::wgpu;
 use iced::Size;
 use iced::{mouse, widget::shader, Rectangle};
 use crate::fj_viewer::viewer::Viewer;
+use crate::fj_viewer::{Camera, FocusPoint, NormalizedScreenPosition};
+use crate::fj_viewer::graphics::{
+    DrawConfig, 
+    Renderer
+};
 
 #[derive(Clone)]
 pub struct Model {
@@ -32,11 +37,28 @@ impl<Message> shader::Program<Message> for Model {
 }
 
 #[derive(Debug)]
-pub struct Primitive {}
+pub struct Primitive {
+    camera: Camera,
+    cursor: Option<NormalizedScreenPosition>,
+    draw_config: DrawConfig,
+    focus_point: Option<FocusPoint>,
+    // renderer: Renderer,
+    model: Option<fj_interop::Model>,
+}
 
 impl Primitive {
     pub fn new() -> Self {
-        Self {}
+        // let renderer = Renderer::new(size, device, queue, format)?;
+
+        Self {
+            camera: Camera::default(),
+            cursor: None,
+            draw_config: DrawConfig::default(),
+            focus_point: None,
+            // renderer,
+            model: None,
+        }
+        // Self { viewer: None }
     }
 }
 
@@ -50,17 +72,26 @@ impl shader::Primitive for Primitive {
         bounds: &Rectangle,
         viewport: &shader::Viewport,
     ) {
-        if !storage.has::<Pipeline>() {
-            storage.store(Pipeline::new(
-                device,
-                queue,
-                format,
-                viewport.physical_size(),
-            ));
-        }
-        let pipeline = storage.get_mut::<Pipeline>().unwrap();
+        // if !storage.has::<Pipeline>() {
+        //     storage.store(Pipeline::new(
+        //         device,
+        //         queue,
+        //         format,
+        //         viewport.physical_size(),
+        //     ));
+        // }
+        // let pipeline = storage.get_mut::<Pipeline>().unwrap();
         // Upload data to GPU
-        pipeline.update(viewport.physical_size());
+        // pipeline.update(viewport.physical_size());
+        // if !storage.has::<Viewer>() {
+        //     let viewer = block_on(Viewer::new(target_size, device, queue, format)).expect("Failed to create viewer");
+        //     storage.store(viewer);
+        // }
+
+        // let viewer = block_on(Viewer::new(target_size, device, queue, format)).expect("Failed to create viewer");
+        // self.viewer = Some(viewer);
+        let target_size = viewport.physical_size();
+
     }
 
     fn render(
@@ -71,15 +102,16 @@ impl shader::Primitive for Primitive {
         clip_bounds: &Rectangle<u32>,
     ) {
         // At this point our pipeline should always be initialized
-        let pipeline = storage.get::<Pipeline>().unwrap();
+        let viewer = storage.get_mut::<Viewer>().unwrap();
+        viewer.draw(target, encoder, clip_bounds);
 
-        pipeline.render(
-            target,
-            encoder,
-            clip_bounds,
-            // self.cubes.len() as u32,
-            // self.show_depth_buffer,
-        );
+        // pipeline.render(
+        //     target,
+        //     encoder,
+        //     clip_bounds,
+        //     // self.cubes.len() as u32,
+        //     // self.show_depth_buffer,
+        // );
     }
 }
 
@@ -102,12 +134,12 @@ impl Pipeline {
         }
     }
 
-    pub fn update(&mut self, viewport_size: Size<u32>) {
+    // pub fn update(&mut self, viewport_size: Size<u32>) {
 
-    }
+    // }
 
     pub fn render(
-        &self,
+        &mut self,
         target: &wgpu::TextureView,
         encoder: &mut wgpu::CommandEncoder,
         clip_bounds: &Rectangle<u32>,

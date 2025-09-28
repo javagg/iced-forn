@@ -1,6 +1,5 @@
 use fj_interop::Model;
 
-use fj_math::T;
 use iced::{Rectangle, Size};
 use tracing::warn;
 
@@ -14,6 +13,7 @@ use crate::fj_viewer::{graphics::RendererInitError, NormalizedScreenPosition, Sc
 use iced_wgpu::wgpu;
 
 /// The Fornjot model viewer
+// #[derive(Debug)]
 pub struct Viewer {
     camera: Camera,
     cursor: Option<NormalizedScreenPosition>,
@@ -32,7 +32,7 @@ impl Viewer {
         queue: &wgpu::Queue,
         format: wgpu::TextureFormat,
     ) -> Result<Self, RendererInitError> {
-        let renderer = Renderer::new(size, device, queue, format).await?;
+        let renderer = Renderer::new(size, device, queue, format)?;
 
         Ok(Self {
             camera: Camera::default(),
@@ -97,7 +97,7 @@ impl Viewer {
 
     /// Draw the graphics
     pub fn draw(
-        &self,
+        &mut self,
         target: &wgpu::TextureView,
         encoder: &mut wgpu::CommandEncoder,
         clip_bounds: &Rectangle<u32>,

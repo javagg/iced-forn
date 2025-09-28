@@ -17,12 +17,12 @@ use super::{
 
 /// Graphics rendering state and target abstraction
 #[derive(Debug)]
-pub struct Renderer {
+pub struct Renderer<'a> {
     // surface: wgpu::Surface<'static>,
     // device: Device,
 
-    device: wgpu::Device,
-    queue: wgpu::Queue,
+    device: &'a wgpu::Device,
+    queue: &'a wgpu::Queue,
 
     surface_config: wgpu::SurfaceConfiguration,
     frame_buffer: wgpu::TextureView,
@@ -37,7 +37,7 @@ pub struct Renderer {
     navigation_cube_renderer: NavigationCubeRenderer,
 }
 
-impl Renderer {
+impl<'a> Renderer<'a> {
     /// Returns a new `Renderer`.
     // pub async fn new(screen: &impl Screen) -> Result<Self, RendererInitError> {
     //     let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
@@ -205,7 +205,7 @@ impl Renderer {
     // }
 
 
-    pub async fn new(
+    pub fn new(
         // screen: &impl Screen,
         size: Size<u32>,
         device: &wgpu::Device,
@@ -502,8 +502,8 @@ impl Renderer {
             camera.rotation,
         );
 
-        let command_buffer = encoder.finish();
-        self.queue.submit(Some(command_buffer));
+        // let command_buffer = encoder.finish();
+        // self.queue.submit(Some(command_buffer));
 
         trace!("Presenting...");
         // surface_texture.present();
