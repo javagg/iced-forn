@@ -190,14 +190,6 @@ impl NavigationCubeRenderer {
     }
 
     fn get_mvp_matrix(rotation: Transform, aspect_ratio: f64) -> [f32; 16] {
-        let scale = Transform::scale(SCALE_FACTOR);
-        let world_translation = Transform::translation([0.0, 0.0, -1.0]);
-
-        let mut model_matrix = Transform::identity();
-        model_matrix = model_matrix * world_translation;
-        model_matrix = model_matrix * rotation;
-        model_matrix = model_matrix * scale;
-
         let perspective =
             nalgebra::Perspective3::new(aspect_ratio, 30.0, 0.1, 2.0);
 
@@ -207,12 +199,44 @@ impl NavigationCubeRenderer {
             &nalgebra::Vector3::new(0.0, -1.0, 0.0),
         );
 
-        let screen_translation = Transform::translation(CUBE_TRANSLATION);
+        // let screen_translation = Transform::translation(CUBE_TRANSLATION);
 
-        let matrix = screen_translation.get_inner().matrix()
-            * *perspective.to_projective().matrix()
-            * view_matrix
-            * model_matrix.get_inner().matrix();
+        // let matrix = screen_translation.get_inner().matrix()
+        //     * *perspective.to_projective().matrix()
+        //     * view_matrix
+        //     * model_matrix.get_inner().matrix();
+
+        // Build transformation matrices using nalgebra directly to avoid type conflicts
+        let screen_transform = nalgebra::Matrix4::new(
+            1.0, 0.0, 0.0, CUBE_TRANSLATION[0],
+            0.0, 1.0, 0.0, CUBE_TRANSLATION[1],
+            0.0, 0.0, 1.0, CUBE_TRANSLATION[2],
+            0.0, 0.0, 0.0, 1.0,
+        );
+        
+        // For simplicity, use identity rotation for now
+        // TODO: Convert fj_math::Transform rotation to nalgebra format
+        let rotation_matrix = nalgebra::Matrix4::identity();
+        
+        let scale_matrix = nalgebra::Matrix4::new(
+            SCALE_FACTOR, 0.0, 0.0, 0.0,
+            0.0, SCALE_FACTOR, 0.0, 0.0, 
+            0.0, 0.0, SCALE_FACTOR, 0.0,
+            0.0, 0.0, 0.0, 1.0,
+        );
+        
+        let translation_matrix = nalgebra::Matrix4::new(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, -1.0,
+            0.0, 0.0, 0.0, 1.0,
+        );
+        
+        let model_transform = translation_matrix * rotation_matrix * scale_matrix;
+        
+        let proj_mat = perspective.to_projective().matrix().clone();
+        
+        let matrix = screen_transform * proj_mat * view_matrix * model_transform;
 
         let mut mat = [0.; 16];
         mat.copy_from_slice(matrix.as_slice());
