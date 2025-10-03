@@ -1,6 +1,6 @@
 use bytemuck::{Pod, Zeroable};
 
-use crate::fj_viewer::Camera;
+use crate::fjviewer::Camera;
 
 #[derive(Clone, Copy, Pod, Zeroable)]
 #[repr(transparent)]

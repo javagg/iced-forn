@@ -1,4 +1,4 @@
-use crate::fj_viewer::NormalizedScreenPosition;
+use crate::fjviewer::NormalizedScreenPosition;
 
 /// An input event
 pub enum InputEvent {

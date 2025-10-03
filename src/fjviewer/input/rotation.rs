@@ -1,6 +1,6 @@
 use fj_math::{Transform, Vector};
 
-use crate::fj_viewer::{Camera, FocusPoint};
+use crate::fjviewer::{Camera, FocusPoint};
 
 pub struct Rotation;
 

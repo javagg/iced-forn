@@ -1,154 +1,94 @@
-mod scene;
 mod model;
 
-mod fj_viewer;
-use scene::Scene;
-use model::Model;
+mod fjviewer;
+use fj_core::algorithms::approx::Tolerance;
+use fj_core::algorithms::bounding_volume::BoundingVolume;
+use fj_core::algorithms::triangulate::Triangulate;
+use fj_core::objects::{Region, Sketch};
+use fj_core::operations::build::{BuildRegion, BuildSketch};
+use fj_core::operations::sweep::SweepSketch;
+use fj_core::operations::update::UpdateSketch;
+use fj_math::{Aabb, Point, Scalar};
 
-use iced::time::Instant;
-use iced::widget::shader::wgpu;
-use iced::widget::{center, checkbox, column, row, shader, slider, text};
-use iced::window;
-use iced::{Center, Color, Element, Fill, Subscription};
+use iced::widget::{center, column, shader};
+use iced::Length::{self, Fill};
+use iced::{Center, Element};
+
+use model::Program;
 
 fn main() -> iced::Result {
     iced::application(
         "Custom Shader - Iced",
-        IcedCubes::update,
-        IcedCubes::view,
+        App::update,
+        App::view,
     )
-    .subscription(IcedCubes::subscription)
     .run()
 }
 
-struct IcedCubes {
-    start: Instant,
-    scene: Scene,
-    model: Model,
-}
+struct App;
 
 #[derive(Debug, Clone)]
-enum Message {
-    CubeAmountChanged(u32),
-    CubeSizeChanged(f32),
-    Tick(Instant),
-    ShowDepthBuffer(bool),
-    LightColorChanged(Color),
-}
+enum Message {}
 
-impl IcedCubes {
+impl App {
     fn new() -> Self {
-        Self {
-            start: Instant::now(),
-            scene: Scene::new(),
-            model: Model::new(),
-        }
+        Self {}
     }
 
     fn update(&mut self, message: Message) {
-        match message {
-            Message::CubeAmountChanged(amount) => {
-                self.scene.change_amount(amount);
-            }
-            Message::CubeSizeChanged(size) => {
-                self.scene.size = size;
-            }
-            Message::Tick(time) => {
-                self.scene.update(time - self.start);
-            }
-            Message::ShowDepthBuffer(show) => {
-                self.scene.show_depth_buffer = show;
-            }
-            Message::LightColorChanged(color) => {
-                self.scene.light_color = color;
-            }
-        }
     }
 
     fn view(&self) -> Element<'_, Message> {
-        let top_controls = row![
-            control(
-                "Amount",
-                slider(
-                    1..=scene::MAX,
-                    self.scene.cubes.len() as u32,
-                    Message::CubeAmountChanged
-                )
-                .width(100)
-            ),
-            control(
-                "Size",
-                slider(0.1..=0.25, self.scene.size, Message::CubeSizeChanged)
-                    .step(0.01)
-                    .width(100),
-            ),
-            checkbox("Show Depth Buffer", self.scene.show_depth_buffer)
-                .on_toggle(Message::ShowDepthBuffer),
-        ]
-        .spacing(40);
-
-        let bottom_controls = row![
-            control(
-                "R",
-                slider(0.0..=1.0, self.scene.light_color.r, move |r| {
-                    Message::LightColorChanged(Color {
-                        r,
-                        ..self.scene.light_color
-                    })
-                })
-                .step(0.01)
-                .width(100)
-            ),
-            control(
-                "G",
-                slider(0.0..=1.0, self.scene.light_color.g, move |g| {
-                    Message::LightColorChanged(Color {
-                        g,
-                        ..self.scene.light_color
-                    })
-                })
-                .step(0.01)
-                .width(100)
-            ),
-            control(
-                "B",
-                slider(0.0..=1.0, self.scene.light_color.b, move |b| {
-                    Message::LightColorChanged(Color {
-                        b,
-                        ..self.scene.light_color
-                    })
-                })
-                .step(0.01)
-                .width(100)
+        let [x, y, z] = [3.0, 2.0, 1.0];
+        let mut core = fj_core::Core::new();
+        let bottom_surface = core.layers.objects.surfaces.xy_plane();
+        let sweep_path = fj_math::Vector::from([fj_math::Scalar::ZERO, fj_math::Scalar::ZERO, (-z).into()]);
+        let model = Sketch::empty()
+            .add_regions(
+                [Region::polygon(
+                    [
+                        [-x / 2., -y / 2.],
+                        [x / 2., -y / 2.],
+                        [x / 2., y / 2.],
+                        [-x / 2., y / 2.],
+                    ],
+                    &mut core,
+                )],
+                &mut core,
             )
-        ]
-        .spacing(40);
+            .sweep_sketch(bottom_surface, sweep_path, &mut core);
 
-        let controls = column![top_controls, bottom_controls,]
-            .spacing(10)
-            .padding(20)
-            .align_x(Center);
+        core.layers
+            .validation
+            .take_errors()
+            .expect("Model is invalid");
+        let aabb = model.aabb(&core.layers.geometry).unwrap_or(Aabb {
+            min: Point::origin(),
+            max: Point::origin(),
+        });
 
-        // let shader = shader(&self.scene).width(Fill).height(Fill);
-        let shader = shader(&self.model).width(Fill).height(Fill);
+        let mut min_extent = Scalar::MAX;
+        for extent in aabb.size().components {
+            if extent > Scalar::ZERO && extent < min_extent {
+                min_extent = extent;
+            }
+        }
 
-        center(column![shader, controls].align_x(Center)).into()
-    }
+        let tolerance = min_extent / Scalar::from_f64(1000.);
+        let tolerance = Tolerance::from_scalar(tolerance).unwrap();
 
-    fn subscription(&self) -> Subscription<Message> {
-        window::frames().map(Message::Tick)
+        let mesh = (&model, tolerance).triangulate(&mut core);
+        let m = fj_interop::Model { mesh, aabb };
+        center(column![
+            "Text1",
+            "Text2",
+            shader(Program::new(m)).width(Length::Fill).height(Length::Fill),
+            "Text3",].align_x(Center)).into()
     }
 }
 
-impl Default for IcedCubes {
+impl Default for App {
     fn default() -> Self {
         Self::new()
     }
-}
-
-fn control<'a>(
-    label: &'static str,
-    control: impl Into<Element<'a, Message>>,
-) -> Element<'a, Message> {
-    row![text(label), control.into()].spacing(10).into()
 }

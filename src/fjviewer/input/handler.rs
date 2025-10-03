@@ -1,5 +1,5 @@
 use super::{movement::Movement, rotation::Rotation, zoom::Zoom, InputEvent};
-use crate::fj_viewer::{Camera, FocusPoint};
+use crate::fjviewer::{Camera, FocusPoint};
 
 /// Input handling abstraction
 ///

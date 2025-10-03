@@ -1,8 +1,8 @@
 use fj_math::{Point, Scalar, Transform, Vector};
 
 use crate::{
-    fj_viewer::{Camera, FocusPoint},
-    fj_viewer::NormalizedScreenPosition,
+    fjviewer::{Camera, FocusPoint},
+    fjviewer::NormalizedScreenPosition,
 };
 
 pub struct Movement;

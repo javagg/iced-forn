@@ -5,7 +5,7 @@ use iced_wgpu::wgpu;
 use wgpu::util::DeviceExt;
 
 use super::texture::{self, LoadTextureError};
-use crate::fj_viewer::assets::Assets;
+use crate::fjviewer::assets::Assets;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]

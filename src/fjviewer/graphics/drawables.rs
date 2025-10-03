@@ -41,7 +41,6 @@ impl<'a> Drawable<'a> {
             self.geometry.index_buffer.slice(..),
             wgpu::IndexFormat::Uint32,
         );
-
         render_pass.draw_indexed(0..self.geometry.num_indices, 0, 0..1);
     }
 }
