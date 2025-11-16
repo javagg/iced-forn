@@ -1,6 +1,5 @@
 //! Rendering primitives, routines, and structures.
 
-mod device;
 mod draw_config;
 pub mod drawables;
 pub mod geometries;
@@ -17,7 +16,7 @@ pub mod vertices;
 use iced_wgpu::wgpu;
 
 pub use self::{
-    device::DeviceError,
+    // device::DeviceError,
     draw_config::DrawConfig,
     // renderer::{Renderer, RendererInitError},
 };

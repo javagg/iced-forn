@@ -2,7 +2,7 @@ use std::ops::Range;
 
 use tobj::LoadError;
 use iced_wgpu::wgpu;
-use wgpu::util::DeviceExt;
+use iced_wgpu::wgpu::util::DeviceExt;
 
 use super::texture::{self, LoadTextureError};
 use crate::fjviewer::assets::Assets;

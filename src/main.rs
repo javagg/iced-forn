@@ -1,4 +1,5 @@
-mod model;
+// mod model;
+mod model1;
 
 mod fjviewer;
 use fj_core::algorithms::approx::Tolerance;
@@ -14,7 +15,7 @@ use iced::widget::{center, column, shader};
 use iced::Length::{self, Fill};
 use iced::{Center, Element};
 
-use model::Program;
+use model1::Program;
 
 fn main() -> iced::Result {
     iced::application(
